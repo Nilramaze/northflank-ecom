@@ -1,27 +1,38 @@
-FROM node:18.8-alpine as base
+ARG NODE_VERSION=16.14.0
 
-FROM base as builder
+# Setup the build container.
+FROM node:${NODE_VERSION}-alpine AS build
 
-WORKDIR /home/node/app
-COPY package*.json ./
+WORKDIR /home/node
 
-COPY . .
+ENV PYTHONUNBUFFERED=1
+RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
+RUN python3 -m ensurepip
+RUN pip3 install --no-cache --upgrade pip setuptools
 RUN yarn install
-RUN yarn build
 
-FROM base as runtime
+# Install dependencies.
+COPY package*.json .
 
-ENV NODE_ENV=production
-ENV PAYLOAD_CONFIG_PATH=dist/payload.config.js
+RUN yarn install
 
-WORKDIR /home/node/app
-COPY package*.json  ./
-COPY yarn.lock ./
+# Copy the source files.
+COPY src src
+COPY tsconfig.json .
 
-RUN yarn install --production
-COPY --from=builder /home/node/app/dist ./dist
-COPY --from=builder /home/node/app/build ./build
+# Build the application.
+RUN yarn build && yarn cache clean
 
+# Setup the runtime container.
+FROM node:${NODE_VERSION}-alpine
+
+WORKDIR /home/node
+
+# Copy the built application.
+COPY --from=build /home/node /home/node
+
+# Expose the service's port.
 EXPOSE 3000
 
-CMD ["node", "dist/server.js"]
+# Run the service.
+CMD ["yarn", "run", "serve"]
