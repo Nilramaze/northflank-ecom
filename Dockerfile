@@ -35,7 +35,7 @@ WORKDIR /home/node
 COPY --from=build /home/node /home/node
 
 # Expose the service's port.
-EXPOSE 4000
+EXPOSE 3000
 
 # Run the service.
 CMD ["yarn", "run", "serve"]
