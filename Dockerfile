@@ -5,6 +5,8 @@ FROM node:${NODE_VERSION}-alpine AS build
 
 WORKDIR /home/node
 
+
+ENV PAYLOAD_SECRET=8vS7e8tco8Vz/iRPfenERsK1M4LjP+yF
 ENV PYTHONUNBUFFERED=1
 RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
 RUN python3 -m ensurepip
