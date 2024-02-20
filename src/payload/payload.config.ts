@@ -40,6 +40,11 @@ dotenv.config({
 })
 
 export default buildConfig({
+  
+  serverURL: process.env.PAYLOAD_PUBLIC_BASE_DNS,
+  rateLimit: {
+    trustProxy: true,
+  },
   admin: {
     user: Users.slug,
     bundler: webpackBundler(), // bundler-config
@@ -80,7 +85,6 @@ export default buildConfig({
     url: process.env.DATABASE_URI,
   }),
   // database-adapter-config-end
-  serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL,
   collections: [Pages, Products, Orders, Media, Categories, Users],
   globals: [Settings, Header, Footer],
   typescript: {
